@@ -1,0 +1,10 @@
+[
+    {
+        "merged": "xyz.mdblab.z80.app-mergeDebugResources-34:/layout/activity_main.xml",
+        "source": "xyz.mdblab.z80.app-main-37:/layout/activity_main.xml"
+    },
+    {
+        "merged": "xyz.mdblab.z80.app-mergeDebugResources-34:/layout/activity_settings.xml",
+        "source": "xyz.mdblab.z80.app-main-37:/layout/activity_settings.xml"
+    }
+]

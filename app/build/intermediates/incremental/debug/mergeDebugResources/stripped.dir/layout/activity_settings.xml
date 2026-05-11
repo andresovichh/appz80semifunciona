@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="@string/lbl_mfg" android:textStyle="bold" />
+        <EditText android:id="@+id/mfg" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:inputType="text"
+            android:hint="@string/hint_mfg" />
+
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="8dp" android:text="@string/lbl_country" android:textStyle="bold" />
+        <EditText android:id="@+id/country" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:inputType="text"
+            android:hint="@string/hint_country" />
+
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="8dp" android:text="@string/lbl_scale" android:textStyle="bold" />
+        <EditText android:id="@+id/scale" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:inputType="number" />
+
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="8dp" android:text="@string/lbl_decimals" android:textStyle="bold" />
+        <EditText android:id="@+id/decimals" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:inputType="number" />
+
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="8dp" android:text="@string/lbl_response_time" android:textStyle="bold" />
+        <EditText android:id="@+id/response_time" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:inputType="text"
+            android:hint="@string/hint_response_time" />
+
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="8dp" android:text="@string/lbl_feature_level" android:textStyle="bold" />
+        <EditText android:id="@+id/feature_level" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:inputType="number"
+            android:hint="@string/hint_feature_level" />
+
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="8dp" android:text="@string/lbl_wait_end" android:textStyle="bold" />
+        <EditText android:id="@+id/wait_end" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:inputType="number" />
+
+        <CheckBox android:id="@+id/always_idle" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:text="@string/lbl_always_idle"
+            android:layout_marginTop="12dp" />
+        <CheckBox android:id="@+id/multi_vend" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:text="@string/lbl_multi_vend" />
+        <CheckBox android:id="@+id/remote_vend" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:text="@string/lbl_remote_vend" />
+        <CheckBox android:id="@+id/refunds" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:text="@string/lbl_refunds" />
+        <CheckBox android:id="@+id/revalue" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:text="@string/lbl_revalue" />
+        <CheckBox android:id="@+id/ack_first" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:text="@string/lbl_ack_first" />
+        <CheckBox android:id="@+id/cash_sale" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:text="@string/lbl_cash_sale" />
+
+        <Button android:id="@+id/btn_save" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:layout_marginTop="16dp"
+            android:text="@string/btn_save" />
+    </LinearLayout>
+</ScrollView>

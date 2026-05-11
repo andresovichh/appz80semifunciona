@@ -1,0 +1,32 @@
+<resources>
+    <string name="app_name">MDB Lab</string>
+
+    <string name="hint_funds">Funds (scaled, e.g. 500)</string>
+    <string name="btn_begin">Begin</string>
+    <string name="btn_approve">Approve</string>
+    <string name="btn_deny">Deny</string>
+    <string name="btn_cancel">Cancel</string>
+    <string name="btn_clear">Clear</string>
+    <string name="btn_settings">Settings</string>
+    <string name="sniffer_label">Sniffer (rx ↓ / tx ↑):</string>
+
+    <string name="lbl_mfg">Manufacture code (3 chars)</string>
+    <string name="hint_mfg">XGD</string>
+    <string name="lbl_country">Country code (hex 0xFFFF = any, 0x1858 = UYU)</string>
+    <string name="hint_country">0xFFFF</string>
+    <string name="lbl_scale">Scale factor</string>
+    <string name="lbl_decimals">Decimal places</string>
+    <string name="lbl_response_time">Z7 max response time (hex seconds, myPOS=0x3C)</string>
+    <string name="hint_response_time">0x3C</string>
+    <string name="lbl_feature_level">Z2 reader feature level (0=auto, 1/2/3=force)</string>
+    <string name="hint_feature_level">0</string>
+    <string name="lbl_wait_end">Wait end-session timeout (sec)</string>
+    <string name="lbl_always_idle">Always-idle (auto-arm session, prevents RESET loop)</string>
+    <string name="lbl_multi_vend">Support multi-vend (Z8 bit 1)</string>
+    <string name="lbl_remote_vend">Support remote-vend (Z8 bit 3)</string>
+    <string name="lbl_refunds">Request refunds (Z8 bit 0)</string>
+    <string name="lbl_revalue">Revalue approved (Z8 bit 2)</string>
+    <string name="lbl_ack_first">Respond ACK first then payload</string>
+    <string name="lbl_cash_sale">Support cash-sale notifications</string>
+    <string name="btn_save">Save + reload</string>
+</resources>
