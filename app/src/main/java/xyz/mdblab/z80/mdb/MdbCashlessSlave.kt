@@ -419,7 +419,7 @@ class MdbCashlessSlave(
             (cc and 0xFF).toByte(),                               // Z4 country lo
             config.scaleFactor.toByte(),                          // Z5
             config.decimalPlaces,                                 // Z6
-            0xFF.toByte(),                                        // Z7 max response time (255 segundos forzados)
+            0x3C.toByte(),                                        // Z7 max response time (60 segundos)
             config.optionsByte ?: computeMiscOptions(),           // Z8 misc options
         )
         return payload                                            // transmit() adds checksum
