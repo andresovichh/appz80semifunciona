@@ -218,6 +218,8 @@ class MdbCashlessSlave(
         pendingFunds.set(NONE)
         clearSessionFlags()
         setStatus(DeviceStatus.INACTIVE)
+        // MUST respond to the next POLL with JUST_RESET (0x00)
+        transmit(byteArrayOf(MdbWire.POLL_JUST_RESET.toByte()))
     }
 
     private fun handleSetup(rx: ByteArray) {
@@ -308,10 +310,23 @@ class MdbCashlessSlave(
                 setStatus(DeviceStatus.VEND)
                 callback.onPay(VendType.SALE, itemPrice, itemNumber)
 
-                // We do NOT auto-approve. The YSDK AIDL will automatically
-                // ACK this VEND_REQUEST. The VMC will then poll us.
-                // We will reply to the polls with ACK ("no data") until
-                // the Android host explicitly calls approveVend() or denyVend().
+                // Opción B (Modificada): Si el saldo es infinito (0xFFFF) o alcanza para pagar,
+                // auto-aprobamos al instante. Si no, NO HACEMOS NADA y dejamos que la VMC espere.
+                // La VMC se quedará en "Procesando..." durante su timeout de hardware
+                // (que suele ser entre 5 y 30 segundos según la máquina) dándole
+                // tiempo al usuario para escanear y a la UI de Android para mandar approveVend().
+                when {
+                    fundsAvailable == 0xFFFF || itemPrice <= fundsAvailable -> {
+                        transmit(byteArrayOf(
+                            MdbWire.POLL_VEND_APPROVED.toByte(),
+                            (itemPrice ushr 8 and 0xFF).toByte(),
+                            (itemPrice and 0xFF).toByte(),
+                        ))
+                    }
+                    // Si no hay saldo, NO auto-denegamos. Dejamos que la app de Android
+                    // decida si llamar a approveVend() o denyVend(), o que la VMC
+                    // aborte sola por timeout.
+                }
             }
             MdbWire.VEND_CANCEL -> {
                 vendDeniedTodo.set(true)
