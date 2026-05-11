@@ -315,6 +315,11 @@ class MdbCashlessSlave(
                 // La VMC se quedará en "Procesando..." durante su timeout de hardware
                 // (que suele ser entre 5 y 30 segundos según la máquina) dándole
                 // tiempo al usuario para escanear y a la UI de Android para mandar approveVend().
+                // BLOQUE COMENTADO:
+                // Ya no auto-aprobamos nunca (ni siquiera con 0xFFFF).
+                // La VMC siempre se quedará en "Procesando..." y dependerá
+                // de que llames a approveVend() desde tu lógica de negocio.
+                /*
                 when {
                     fundsAvailable == 0xFFFF || itemPrice <= fundsAvailable -> {
                         transmit(byteArrayOf(
@@ -323,10 +328,8 @@ class MdbCashlessSlave(
                             (itemPrice and 0xFF).toByte(),
                         ))
                     }
-                    // Si no hay saldo, NO auto-denegamos. Dejamos que la app de Android
-                    // decida si llamar a approveVend() o denyVend(), o que la VMC
-                    // aborte sola por timeout.
                 }
+                */
             }
             MdbWire.VEND_CANCEL -> {
                 vendDeniedTodo.set(true)
@@ -416,7 +419,7 @@ class MdbCashlessSlave(
             (cc and 0xFF).toByte(),                               // Z4 country lo
             config.scaleFactor.toByte(),                          // Z5
             config.decimalPlaces,                                 // Z6
-            config.responseTime,                                  // Z7 max response time
+            0xFF.toByte(),                                        // Z7 max response time (255 segundos forzados)
             config.optionsByte ?: computeMiscOptions(),           // Z8 misc options
         )
         return payload                                            // transmit() adds checksum
