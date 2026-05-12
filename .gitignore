@@ -1,0 +1,35 @@
+# --- Android / Gradle build outputs ---
+.gradle/
+build/
+app/build/
+captures/
+.externalNativeBuild/
+.cxx/
+
+# --- IDE ---
+.idea/
+*.iml
+.vscode/
+
+# --- Local config / secrets ---
+local.properties
+keystore.properties
+*.jks
+*.keystore
+
+# --- Runtime / debug artifacts ---
+*.log
+logcat*.txt
+mdblab.log
+scratch_mdb.py
+scratch_*.py
+*.hprof
+
+# --- macOS / OS ---
+.DS_Store
+Thumbs.db
+
+# --- Output APKs (debug build) ---
+app/release/
+*.apk
+!app/src/main/assets/*.apk
