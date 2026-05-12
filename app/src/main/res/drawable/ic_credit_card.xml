@@ -1,0 +1,52 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="100dp"
+    android:height="65dp"
+    android:viewportWidth="100"
+    android:viewportHeight="65">
+
+    <!-- Card Base -->
+    <path
+        android:fillColor="#1565C0"
+        android:pathData="M5,5 L95,5 Q100,5 100,10 L100,55 Q100,60 95,60 L5,60 Q0,60 0,55 L0,10 Q0,5 5,5 Z"/>
+
+    <!-- Card Shine -->
+    <path
+        android:fillColor="#1976D2"
+        android:pathData="M5,5 L95,5 Q100,5 100,10 L100,25 L0,35 L0,10 Q0,5 5,5 Z"/>
+
+    <!-- Magnetic Strip -->
+    <path
+        android:fillColor="#212121"
+        android:pathData="M0,15 L100,15 L100,25 L0,25 Z"/>
+
+    <!-- Chip -->
+    <path
+        android:fillColor="#FFD54F"
+        android:pathData="M10,32 L30,32 Q32,32 32,34 L32,48 Q32,50 30,50 L10,50 Q8,50 8,48 L8,34 Q8,32 10,32 Z"/>
+
+    <!-- Chip Lines -->
+    <path
+        android:fillColor="#FFC107"
+        android:pathData="M12,36 L28,36 L28,38 L12,38 Z M12,40 L28,40 L28,42 L12,42 Z M12,44 L28,44 L28,46 L12,46 Z"/>
+    <path
+        android:fillColor="#FFC107"
+        android:pathData="M18,34 L20,34 L20,48 L18,48 Z M22,34 L24,34 L24,48 L22,48 Z"/>
+
+    <!-- Contactless Icon on Card -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="2"
+        android:pathData="M80,38 A6,6 0 0,1 80,50"/>
+    <path
+        android:fillColor="#FFFFFF"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="2"
+        android:pathData="M75,35 A12,12 0 0,1 75,53"/>
+    <path
+        android:fillColor="#FFFFFF"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="2"
+        android:pathData="M70,32 A18,18 0 0,1 70,56"/>
+
+</vector>

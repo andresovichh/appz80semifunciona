@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- CH340/CH341 USB-to-Serial (Waferstar RS232-MDB adapter) -->
+    <usb-device vendor-id="6790" product-id="29987" />
+    <!-- FTDI FT232R -->
+    <usb-device vendor-id="1027" product-id="24577" />
+    <!-- Prolific PL2303 -->
+    <usb-device vendor-id="1659" product-id="8963" />
+    <!-- CP210x Silicon Labs -->
+    <usb-device vendor-id="4292" product-id="60000" />
+</resources>

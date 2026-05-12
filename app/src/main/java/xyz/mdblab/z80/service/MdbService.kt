@@ -151,12 +151,19 @@ class MdbService : Service() {
             return
         }
         mdb = engine.mdbService
-        val ret = try { mdb?.connect(MDB_DEV_PATH) ?: -1 } catch (e: Exception) { -1 }
-        if (ret != 0) {
-            broadcast("DIAG", "mdb.connect failed ret=$ret")
+        var attachedPath: String? = null
+        var lastRet = -1
+        for (path in MDB_DEV_PATHS) {
+            val ret = try { mdb?.connect(path) ?: -1 } catch (e: Exception) { -1 }
+            broadcast("DIAG", "mdb.connect($path) ret=$ret")
+            if (ret == 0) { attachedPath = path; break }
+            lastRet = ret
+        }
+        if (attachedPath == null) {
+            broadcast("DIAG", "mdb.connect failed on all paths, lastRet=$lastRet")
             return
         }
-        broadcast("DIAG", "MDB attached @ $MDB_DEV_PATH")
+        broadcast("DIAG", "MDB attached @ $attachedPath")
         try {
             mdb?.registerRecv(object : IRecvCallback.Stub() {
                 override fun onRecv(data: ByteArray, len: Int) {
@@ -180,12 +187,18 @@ class MdbService : Service() {
                     }
                     "CANCEL_SESSION" -> slave.cancelSession()
                     "TRADE_RESULT" -> {
-                        val result = TransResult.values()[intent.getIntExtra("result", 0)]
+                        // Accept both formats:
+                        //  - new:    extra("approved", Boolean) + extra("amount", Int)
+                        //  - legacy: extra("result", TransResult.ordinal) + extra("amount", Int)
                         val amount = intent.getIntExtra("amount", 0)
-                        when (result) {
-                            TransResult.TRADE_SUCCESS -> slave.approveVend(amount)
-                            else -> slave.denyVend()
+                        val approve = if (intent.hasExtra("approved")) {
+                            intent.getBooleanExtra("approved", false)
+                        } else {
+                            val resIdx = intent.getIntExtra("result", 0)
+                            TransResult.values().getOrNull(resIdx) == TransResult.TRADE_SUCCESS
                         }
+                        broadcast("DIAG", "TRADE_RESULT approve=$approve amount=$amount")
+                        if (approve) slave.approveVend(amount) else slave.denyVend()
                     }
                     "RELOAD_CONFIG" -> {
                         slave.config = settings.load()
@@ -237,7 +250,7 @@ class MdbService : Service() {
 
     companion object {
         private const val TAG = "MdbService"
-        private const val MDB_DEV_PATH = "/dev/ttyACM0"
+        private val MDB_DEV_PATHS = listOf("/dev/ttyACM0", "/dev/ttyACM1", "/dev/ttyACM2")
         private const val CH_ID = "mdblab_mdb"
         private const val NOTIFICATION_ID = 1
         const val ACTION_VM_COMMAND = "xyz.mdblab.z80.VM_COMMAND"

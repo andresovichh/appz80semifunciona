@@ -343,14 +343,20 @@ class MdbCashlessSlave(
                 callback.notifyVendResult(VendResult.VEND_SUCCESS)
                 setStatus(DeviceStatus.SESSION_IDLE)
                 if (config.enableAlwaysIdle) {
-                    emitBeginSession(fundsAvailable)
+                    // Re-arm with default idle funds (same value READER_ENABLE uses).
+                    // Using `fundsAvailable` here breaks if the slave was re-created without
+                    // going through the full RESET/SETUP/READER_ENABLE handshake (e.g. after
+                    // install -r while the VMC keeps its existing session).
+                    fundsAvailable = config.defaultIdleFunds
+                    emitBeginSession(config.defaultIdleFunds)
                 }
             }
             MdbWire.VEND_FAILURE -> {
                 callback.notifyVendResult(VendResult.VEND_FAILURE)
                 setStatus(DeviceStatus.SESSION_IDLE)
                 if (config.enableAlwaysIdle) {
-                    emitBeginSession(fundsAvailable)
+                    fundsAvailable = config.defaultIdleFunds
+                    emitBeginSession(config.defaultIdleFunds)
                 }
             }
             MdbWire.SESSION_COMPLETE -> {
@@ -358,7 +364,8 @@ class MdbCashlessSlave(
                 callback.notifyVendResult(VendResult.VEND_END_SESSION)
                 transmit(byteArrayOf(MdbWire.POLL_END_SESSION.toByte()))
                 if (config.enableAlwaysIdle) {
-                    emitBeginSession(fundsAvailable)
+                    fundsAvailable = config.defaultIdleFunds
+                    emitBeginSession(config.defaultIdleFunds)
                 }
             }
             MdbWire.CASH_SALE -> {

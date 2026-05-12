@@ -1,101 +1,964 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="12dp">
+    android:background="#F5F5F5"
+    tools:context=".MainActivity">
 
-    <TextView
-        android:id="@+id/state_label"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        android:text="State: UNKNOWN" />
-
+    <!-- Header / Status Bar - Hidden by default (Idle mode shows video fullscreen) -->
     <LinearLayout
+        android:id="@+id/headerLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:orientation="horizontal">
+        android:background="@color/purple_700"
+        android:orientation="horizontal"
+        android:padding="16dp"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="parent">
 
-        <EditText
-            android:id="@+id/funds_input"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:hint="@string/hint_funds"
-            android:inputType="number" />
-
-        <Button
-            android:id="@+id/btn_begin"
+        <TextView
+            android:id="@+id/tvStatus"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/btn_begin" />
+            android:text="System Ready"
+            android:textColor="@android:color/white"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+            
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+            
+        <TextView
+            android:id="@+id/tvConnectionStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="USB: Disconnected"
+            android:textColor="#FFCDD2"
+            android:textSize="14sp" />
     </LinearLayout>
 
+    <!-- Countdown Timer Bar — anchored to the bottom of the whole screen so it
+         floats above ANY overlay (payment selection, QR, dispensing, void, etc.) -->
     <LinearLayout
+        android:id="@+id/countdownLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="vertical"
+        android:background="#FFFFFF"
+        android:visibility="gone"
+        android:elevation="100dp"
+        app:layout_constraintBottom_toBottomOf="parent">
 
-        <Button
-            android:id="@+id/btn_approve"
-            android:layout_width="0dp"
+        <TextView
+            android:id="@+id/tvCountdownSeconds"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/btn_approve" />
+            android:text="30s remaining"
+            android:textAlignment="center"
+            android:textColor="@color/teal_700"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:paddingVertical="8dp"
+            android:background="#F5F5F5" />
 
-        <Button
-            android:id="@+id/btn_deny"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/btn_deny" />
+        <ProgressBar
+            android:id="@+id/pbCountdown"
+            style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="6dp"
+            android:max="1000"
+            android:progress="1000"
+            android:progressTint="@color/teal_700"
+            android:progressBackgroundTint="#E0E0E0" />
 
-        <Button
-            android:id="@+id/btn_cancel"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/btn_cancel" />
     </LinearLayout>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
+    <!-- Idle Video - TextureView for full-screen fill (center crop) -->
+    <TextureView
+        android:id="@+id/videoViewIdle"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
-        <Button
-            android:id="@+id/btn_clear"
+    <!-- Out of Service Overlay - shown when no internet -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/outOfServiceLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#DD000000"
+        android:visibility="gone"
+        android:elevation="50dp"
+        android:clickable="true"
+        android:focusable="true">
+
+        <ImageView
+            android:id="@+id/ivOutOfServiceIcon"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:layout_marginBottom="24dp"
+            android:src="@android:drawable/ic_dialog_alert"
+            android:contentDescription="Out of Service"
+            app:tint="#FF9800"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/tvOutOfServiceTitle" />
+
+        <TextView
+            android:id="@+id/tvOutOfServiceTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="FUERA DE SERVICIO"
+            android:textColor="#FFFFFF"
+            android:textSize="40sp"
+            android:textStyle="bold"
+            android:letterSpacing="0.1"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tvOutOfServiceSubtitle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/btn_clear" />
+            android:layout_marginTop="16dp"
+            android:layout_marginStart="48dp"
+            android:layout_marginEnd="48dp"
+            android:text="Sin conexión a internet"
+            android:textColor="#BDBDBD"
+            android:textSize="20sp"
+            android:textAlignment="center"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvOutOfServiceTitle" />
 
-        <Button
-            android:id="@+id/btn_settings"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/btn_settings" />
-    </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:textStyle="bold"
-        android:text="@string/sniffer_label" />
-
-    <TextView
-        android:id="@+id/sniffer_view"
+    <!-- Product Grid - Hidden by default, only for debug/manual mode -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvProducts"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        android:background="#11000000"
-        android:fontFamily="monospace"
-        android:padding="6dp"
-        android:scrollbars="vertical"
-        android:textSize="11sp" />
-</LinearLayout>
+        android:padding="8dp"
+        android:clipToPadding="false"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@+id/footerLayout"
+        app:layout_constraintTop_toBottomOf="@id/headerLayout"
+        tools:listitem="@layout/item_product"
+        app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+        app:spanCount="3" />
+
+    <!-- Payment Selection Panel (Replaces Footer when a product is selected) -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/paymentSelectionLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#FFFFFF"
+        android:elevation="20dp"
+        android:visibility="gone"
+        android:padding="24dp"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <TextView
+            android:id="@+id/tvPaymentTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Choose Payment Method"
+            android:textColor="@color/black"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tvSelectedProductInfo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Coca Cola - $50.00"
+            android:textColor="#757575"
+            android:textSize="16sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvPaymentTitle" />
+
+        <Button
+            android:id="@+id/btnPayCard"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="8dp"
+            android:text="Credit Card"
+            app:layout_constraintEnd_toStartOf="@+id/btnPayQr"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvSelectedProductInfo" />
+
+        <Button
+            android:id="@+id/btnPayQr"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginStart="8dp"
+            android:text="QR Code"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/btnPayCard"
+            app:layout_constraintTop_toBottomOf="@id/tvSelectedProductInfo" />
+
+        <Button
+            android:id="@+id/btnEmployeeLogin"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="I am an Employee"
+            android:textColor="@color/teal_700"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            app:layout_constraintTop_toBottomOf="@id/btnPayCard" />
+            
+        <Button
+            android:id="@+id/btnCancelSelection"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Cancel"
+            android:textColor="#D32F2F"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/btnEmployeeLogin" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- Press Button on POS Overlay (before card payment starts) -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/pressButtonPosLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#E3F2FD"
+        android:visibility="gone"
+        android:elevation="25dp"
+        android:clickable="true"
+        android:focusable="true">
+
+        <TextView
+            android:id="@+id/tvPressButtonTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="80dp"
+            android:layout_marginStart="32dp"
+            android:layout_marginEnd="32dp"
+            android:text="Presioná cualquier tecla\nen el POS"
+            android:textColor="#1565C0"
+            android:textSize="32sp"
+            android:textStyle="bold"
+            android:textAlignment="center"
+            android:lineSpacingExtra="8dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tvPressButtonSubtitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_marginStart="48dp"
+            android:layout_marginEnd="48dp"
+            android:text="para iniciar el cobro con tarjeta"
+            android:textColor="#42A5F5"
+            android:textSize="20sp"
+            android:textAlignment="center"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvPressButtonTitle" />
+
+        <TextView
+            android:id="@+id/tvPressButtonProductInfo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="Producto - $0.00"
+            android:textColor="#455A64"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvPressButtonSubtitle" />
+
+        <!-- Hand pointing down icon (animated) -->
+        <ImageView
+            android:id="@+id/ivHandPointing"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:layout_marginTop="40dp"
+            android:src="@android:drawable/ic_menu_edit"
+            android:contentDescription="Press button"
+            app:tint="#1976D2"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvPressButtonProductInfo" />
+
+        <ProgressBar
+            android:id="@+id/pbWaitingPosButton"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginTop="32dp"
+            android:indeterminateTint="#1976D2"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/ivHandPointing" />
+
+        <TextView
+            android:id="@+id/tvWaitingPosButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="Esperando..."
+            android:textColor="#1976D2"
+            android:textSize="16sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/pbWaitingPosButton" />
+
+        <Button
+            android:id="@+id/btnCancelPosButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="32dp"
+            android:text="Cancelar"
+            android:textColor="#D32F2F"
+            android:textSize="16sp"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- Card Tap Overlay (Processing Card Payment) -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/cardTapLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/gradient_card_tap_bg"
+        android:visibility="gone"
+        android:elevation="25dp"
+        android:clickable="true"
+        android:focusable="true">
+
+        <!-- CANCELAR anclado a bottom first so it ALWAYS shows, even if upper content overflows -->
+        <Button
+            android:id="@+id/btnCancelCardTap"
+            android:layout_width="180dp"
+            android:layout_height="42dp"
+            android:layout_marginBottom="8dp"
+            android:text="CANCELAR"
+            android:textColor="#FFFFFF"
+            android:textSize="14sp"
+            android:padding="0dp"
+            android:minHeight="0dp"
+            android:backgroundTint="#D32F2F"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
+
+        <TextView
+            android:id="@+id/tvCardTapTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:text="Acercá tu tarjeta"
+            android:textColor="#1976D2"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tvCardTapProduct"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:text="Product - $0.00"
+            android:textColor="#455A64"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvCardTapTitle" />
+
+        <!-- POS Terminal Animation Container -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/cardAnimationContainer"
+            android:layout_width="240dp"
+            android:layout_height="180dp"
+            android:layout_marginTop="6dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvCardTapProduct">
+
+            <!-- POS Terminal Icon -->
+            <ImageView
+                android:id="@+id/ivPosTerminal"
+                android:layout_width="120dp"
+                android:layout_height="150dp"
+                android:src="@drawable/ic_pos_terminal"
+                android:contentDescription="POS Terminal Lane 3000"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:layout_marginEnd="20dp"/>
+
+            <!-- Contactless Symbol (Animated pulse) - positioned at contactless zone on POS -->
+            <ImageView
+                android:id="@+id/ivContactless"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/ic_contactless_waves"
+                android:contentDescription="Contactless zone"
+                app:layout_constraintEnd_toEndOf="@id/ivPosTerminal"
+                app:layout_constraintTop_toTopOf="@id/ivPosTerminal"
+                android:layout_marginEnd="10dp"
+                android:layout_marginTop="20dp"/>
+
+            <!-- Card Icon (Animated - moves toward POS contactless zone) -->
+            <ImageView
+                android:id="@+id/ivCardIcon"
+                android:layout_width="80dp"
+                android:layout_height="52dp"
+                android:src="@drawable/ic_credit_card"
+                android:contentDescription="Credit Card"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:layout_marginStart="10dp"
+                android:layout_marginBottom="30dp"
+                android:rotation="-15"/>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <TextView
+            android:id="@+id/tvCardTapInstructions"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:text="Acercá la tarjeta al terminal POS"
+            android:textColor="#37474F"
+            android:textSize="11sp"
+            android:textAlignment="center"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/cardAnimationContainer" />
+
+        <!-- Countdown Timer for Card Tap -->
+        <LinearLayout
+            android:id="@+id/cardTapCountdownContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:layout_marginHorizontal="24dp"
+            android:orientation="vertical"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvCardTapInstructions">
+
+            <ProgressBar
+                android:id="@+id/pbCardTapCountdown"
+                style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="6dp"
+                android:max="1000"
+                android:progress="1000"
+                android:progressTint="#4CAF50"
+                android:progressBackgroundTint="#E0E0E0" />
+
+            <TextView
+                android:id="@+id/tvCardTapCountdown"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="120s"
+                android:textAlignment="center"
+                android:textColor="#4CAF50"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:paddingTop="2dp" />
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tvCardTapStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:text="Esperando tarjeta..."
+            android:textColor="#1976D2"
+            android:textSize="11sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/cardTapCountdownContainer" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- QR Code Display Overlay -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/qrDisplayLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#FFFFFF"
+        android:visibility="gone"
+        android:elevation="25dp"
+        android:clickable="true"
+        android:focusable="true"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <!-- CANCELAR pinned to bottom first, so the rest fits above -->
+        <Button
+            android:id="@+id/btnCancelQr"
+            android:layout_width="180dp"
+            android:layout_height="42dp"
+            android:layout_marginBottom="8dp"
+            android:text="CANCELAR"
+            android:textColor="#FFFFFF"
+            android:textSize="14sp"
+            android:padding="0dp"
+            android:minHeight="0dp"
+            android:backgroundTint="#D32F2F"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
+
+        <TextView
+            android:id="@+id/tvQrTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:text="Escaneá para Pagar"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tvQrProductInfo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:text="Product - $0.00"
+            android:textColor="#757575"
+            android:textSize="12sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvQrTitle" />
+
+        <ImageView
+            android:id="@+id/ivQrCode"
+            android:layout_width="240dp"
+            android:layout_height="240dp"
+            android:layout_marginTop="4dp"
+            android:background="#F5F5F5"
+            android:contentDescription="QR Code"
+            android:scaleType="fitCenter"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvQrProductInfo" />
+
+        <TextView
+            android:id="@+id/tvQrInstructions"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Abrí MercadoPago y escaneá"
+            android:textColor="#757575"
+            android:textSize="11sp"
+            android:textAlignment="center"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/ivQrCode" />
+
+        <ProgressBar
+            android:id="@+id/pbQrWaiting"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_marginTop="2dp"
+            app:layout_constraintEnd_toEndOf="@id/tvQrStatus"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/tvQrStatus"
+            app:layout_constraintBottom_toBottomOf="@id/tvQrStatus"
+            app:layout_constraintHorizontal_chainStyle="packed"
+            app:layout_constraintHorizontal_bias="0.5" />
+
+        <TextView
+            android:id="@+id/tvQrStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:layout_marginTop="2dp"
+            android:text="Waiting for payment..."
+            android:textColor="@color/teal_700"
+            android:textSize="11sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/pbQrWaiting"
+            app:layout_constraintTop_toBottomOf="@id/tvQrInstructions" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- Dispensing Overlay (Payment approved, waiting for VMC) -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/dispensingLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#E8F5E9"
+        android:visibility="gone"
+        android:elevation="27dp"
+        android:clickable="true"
+        android:focusable="true">
+
+        <TextView
+            android:id="@+id/tvDispensingTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="¡Pago Aprobado!"
+            android:textColor="#2E7D32"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tvDispensingProduct"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Producto - $0.00"
+            android:textColor="#455A64"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvDispensingTitle" />
+
+        <!-- Animated dispensing icon container -->
+        <FrameLayout
+            android:id="@+id/dispensingAnimationContainer"
+            android:layout_width="140dp"
+            android:layout_height="140dp"
+            android:layout_marginTop="12dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvDispensingProduct">
+
+            <ProgressBar
+                android:id="@+id/pbDispensing"
+                android:layout_width="120dp"
+                android:layout_height="120dp"
+                android:layout_gravity="center"
+                android:indeterminateTint="#4CAF50" />
+
+            <ImageView
+                android:id="@+id/ivDispensingIcon"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:layout_gravity="center"
+                android:src="@android:drawable/ic_menu_send"
+                android:contentDescription="Dispensing"
+                app:tint="#4CAF50" />
+
+        </FrameLayout>
+
+        <TextView
+            android:id="@+id/tvDispensingStatus"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:text="Dispensando producto..."
+            android:textColor="#2E7D32"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textAlignment="center"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/dispensingAnimationContainer" />
+
+        <TextView
+            android:id="@+id/tvDispensingSubtitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
+            android:text="Esperando confirmación de la máquina..."
+            android:textColor="#558B2F"
+            android:textSize="12sp"
+            android:textAlignment="center"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvDispensingStatus" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- Void/Refund Overlay -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/voidLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#FFF3E0"
+        android:visibility="gone"
+        android:elevation="28dp"
+        android:clickable="true"
+        android:focusable="true">
+
+        <ImageView
+            android:id="@+id/ivVoidIcon"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_marginTop="60dp"
+            android:src="@android:drawable/ic_dialog_alert"
+            android:contentDescription="Refund Icon"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="#FF9800" />
+
+        <TextView
+            android:id="@+id/tvVoidTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="Error al Dispensar"
+            android:textColor="#E65100"
+            android:textSize="28sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/ivVoidIcon" />
+
+        <TextView
+            android:id="@+id/tvVoidMessage"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_marginStart="24dp"
+            android:layout_marginEnd="24dp"
+            android:text="Tu pago fue procesado pero el producto no pudo ser dispensado.\n\nPara iniciar el reintegro:\n1. Apretá el botón verde del POS\n2. Acercá la misma tarjeta con la que pagaste\n3. Apretá 'Iniciar Devolución' cuando estés listo\n\nTendrás 30 segundos para completar el proceso."
+            android:textColor="#5D4037"
+            android:textSize="16sp"
+            android:textAlignment="center"
+            android:lineSpacingExtra="4dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvVoidTitle" />
+
+        <ProgressBar
+            android:id="@+id/pbVoidProcessing"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:layout_marginTop="24dp"
+            android:visibility="gone"
+            android:indeterminateTint="#FF9800"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvVoidMessage" />
+
+        <TextView
+            android:id="@+id/tvVoidStatus"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:layout_marginStart="32dp"
+            android:layout_marginEnd="32dp"
+            android:text="Acercá tu tarjeta al terminal POS"
+            android:textColor="#E65100"
+            android:textSize="16sp"
+            android:textAlignment="center"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/pbVoidProcessing" />
+
+        <Button
+            android:id="@+id/btnInitiateVoid"
+            android:layout_width="280dp"
+            android:layout_height="60dp"
+            android:layout_marginTop="24dp"
+            android:text="Iniciar Devolución"
+            android:textSize="18sp"
+            android:backgroundTint="#FF9800"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvVoidMessage" />
+
+        <Button
+            android:id="@+id/btnRetryVoid"
+            android:layout_width="280dp"
+            android:layout_height="60dp"
+            android:layout_marginTop="24dp"
+            android:text="Reintentar"
+            android:textSize="18sp"
+            android:visibility="gone"
+            android:backgroundTint="#FF9800"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvVoidStatus" />
+
+        <Button
+            android:id="@+id/btnCancelVoid"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="Cancelar"
+            android:textColor="#D32F2F"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/btnInitiateVoid" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- Employee Login Overlay -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/employeeLoginLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#E6FFFFFF"
+        android:visibility="gone"
+        android:elevation="30dp"
+        android:clickable="true"
+        android:focusable="true">
+
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="300dp"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="8dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="24dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Employee Login"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="16dp" />
+
+                <EditText
+                    android:id="@+id/etEmployeeId"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Enter ID / PIN"
+                    android:inputType="numberPassword" />
+
+                <TextView
+                    android:id="@+id/tvEmployeeStatus"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:textAlignment="center"
+                    android:textColor="#E53935"
+                    android:visibility="gone" />
+
+                <Button
+                    android:id="@+id/btnDoLogin"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="Login" />
+                    
+                <Button
+                    android:id="@+id/btnCancelLogin"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Back"
+                    style="@style/Widget.MaterialComponents.Button.TextButton" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- Original Footer (Hidden in favor of new Payment Panel) -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/footerLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#FFFFFF"
+        android:elevation="16dp"
+        android:visibility="gone"
+        android:padding="16dp"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <TextView
+            android:id="@+id/tvSelectionTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Selected Item"
+            android:textColor="#757575"
+            android:textSize="12sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tvSelectedItem"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="None"
+            android:textColor="@color/black"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvSelectionTitle" />
+
+        <TextView
+            android:id="@+id/tvTotalLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Total"
+            android:textColor="#757575"
+            android:textSize="12sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tvTotalPrice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="$ 0.00"
+            android:textColor="@color/teal_700"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvTotalLabel" />
+
+        <Button
+            android:id="@+id/btnPay"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Pay Now"
+            android:backgroundTint="@color/teal_700"
+            app:layout_constraintTop_toBottomOf="@id/tvSelectedItem" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

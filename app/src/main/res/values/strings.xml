@@ -29,4 +29,6 @@
     <string name="lbl_ack_first">Respond ACK first then payload</string>
     <string name="lbl_cash_sale">Support cash-sale notifications</string>
     <string name="btn_save">Save + reload</string>
+
+    <string name="usb_auto_grant_description">Mantiene Wireless Debugging y Ethernet Tethering activados automáticamente, y captura el puerto ADB para reportarlo al backend. No requiere root.</string>
 </resources>
